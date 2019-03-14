@@ -8,8 +8,8 @@ import environment as env
 import parameters.setup as setup
 from pyvirtualdisplay import Display
 
-#display = Display(visible=0, size=(1400, 900))
-#display.start()
+display = Display(visible=0, size=(1400, 900))
+display.start()
 #####################################  Usage  ##########################################################
 # 1) A command line argument specifying the name of the folder we want to log in must
 #    be specified when this file is run, like so: "python main.py name_of_folder".
