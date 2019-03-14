@@ -228,7 +228,7 @@ class DQN_Agent:
             avg_q = self.estimate_avg_q()
             
             # Saving tensorboard data and model weights
-            if (episode % 1 == 0):# and (episode != 0):
+            if (episode % 20 == 0) and (episode != 0):
                 score, std, rewards = self.test(num_test_episodes=1, visualize=True)
                 if os.path.exists("CarRacing.txt"):
                     append_write = 'a' # append if already exists
@@ -274,7 +274,7 @@ class DQN_Agent:
     def estimate_avg_q(self):
         if not self.q_grid:
             return 0
-        return np.average(np.amax(self.sess.run(self.Q_value, feed_dict={self.state_tf: self.q_grid}), axis=1))
+        return np.average(np.amax(self.sess.run(self.Q_value, feed_dict={self.state_tf: np.reshape(self.q_grid, (200, 32, 10, 1))}), axis=1))
 
     # Description: Loads a model trained in a previous session
     # Parameters:
