@@ -75,7 +75,7 @@ class DQN_Agent:
         self.q_grid = None
 
         # Tf placeholders
-        self.state_tf = tf.placeholder(shape=[None, 320], dtype=tf.float32, name='state_tf')
+        self.state_tf = tf.placeholder(shape=[None, 320, 1], dtype=tf.float32, name='state_tf')
         self.action_tf = tf.placeholder(shape=[None, self.action_size], dtype=tf.float32, name='action_tf')
         self.y_tf = tf.placeholder(dtype=tf.float32, name='y_tf')
         self.alpha = tf.placeholder(dtype=tf.float32, name='alpha')
@@ -142,16 +142,16 @@ class DQN_Agent:
     def experience_replay(self, alpha):
         state_batch, action_batch, reward_batch, next_state_batch, done_batch = self.replay_memory.get_mini_batch(self.training_metadata)
         y_batch = [None] * self.replay_memory.batch_size
-        fixed_feed_dict = {self.state_tf: np.reshape(next_state_batch, (32, 320))}
+        fixed_feed_dict = {self.state_tf: np.reshape(next_state_batch, (32, 320, 1))}
         fixed_feed_dict.update(zip(self.trainable_variables, self.fixed_target_weights))
 
-        greedy_actions = self.sess.run(self.onehot_greedy_action, feed_dict={self.state_tf: np.reshape(next_state_batch, (32, 32, 10, 1))})
+        greedy_actions = self.sess.run(self.onehot_greedy_action, feed_dict={self.state_tf: np.reshape(next_state_batch, (32, 320, 1))})
         fixed_feed_dict.update({self.action_tf: np.reshape(greedy_actions, (32, 5))})
         Q_batch = self.sess.run(self.Q_value_at_action, feed_dict=fixed_feed_dict)
 
         y_batch = reward_batch + self.discount * np.multiply(np.invert(done_batch), Q_batch)
 
-        feed = {self.state_tf: np.reshape(state_batch, (32, 320)), self.action_tf: action_batch, self.y_tf: y_batch, self.alpha: alpha}
+        feed = {self.state_tf: np.reshape(state_batch, (32, 320, 1)), self.action_tf: action_batch, self.y_tf: y_batch, self.alpha: alpha}
         self.sess.run(self.train_op, feed_dict=feed)
 
     # Description: Chooses action wrt an e-greedy policy. 
@@ -164,7 +164,7 @@ class DQN_Agent:
         if random.random() < epsilon:
             return self.env.sample_action_space()
         else:
-            return self.sess.run(self.Q_argmax, feed_dict={self.state_tf: np.reshape(state, (1, 320))})[0]
+            return self.sess.run(self.Q_argmax, feed_dict={self.state_tf: np.reshape(state, (1, 320, 1))})[0]
 
     # Description: Calculates the reward at a given timestep
     # Parameters:
@@ -274,7 +274,7 @@ class DQN_Agent:
     def estimate_avg_q(self):
         if not self.q_grid:
             return 0
-        return np.average(np.amax(self.sess.run(self.Q_value, feed_dict={self.state_tf: np.reshape(self.q_grid, (200, 320))}), axis=1))
+        return np.average(np.amax(self.sess.run(self.Q_value, feed_dict={self.state_tf: np.reshape(self.q_grid, (200, 320, 1))}), axis=1))
 
     # Description: Loads a model trained in a previous session
     # Parameters:

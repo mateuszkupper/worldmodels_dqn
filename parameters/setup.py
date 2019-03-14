@@ -55,7 +55,7 @@ from parameters.architectures import *
 ####################################################################
 setup_dict = {
 	'agent': {
-		'architecture': Nature_Paper_Conv_Dropout, 
+		'architecture': One_D_Conv, 
 		'learning_rate': Atari_Learning_Rate,
 		'explore_rate': Decay_Explore_Rate,
 		'target_update_frequency': 1000,
